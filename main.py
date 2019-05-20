@@ -1,12 +1,16 @@
-import random
+import numpy as np
+
 
 # Ax = b
 
+def seidel_method(*,
+                  A: np.ndarray,
+                  b: np.array,
+                  w: float = 1,
+                  x0: np.array) -> np.ndarray:
+    """
+    Implementation of seidel method.
 
-def seidel_relaxation_method(A, b, w):
-    rows = len(A)
-    cols = len(A[0])
-
-
-def seidel_method(A, b):
-    return seidel_relaxation_method(A, b, 1)
+    :return: sequence of approximation.
+    """
+    yield x0
