@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.linalg as linal
 import typing
-
+import sample_generator as gen
 
 # Ax = b
 
@@ -10,7 +10,7 @@ def seidel_method(*,
                   b: np.array,
                   w: float = 1,
                   eps: typing.Optional[float] = None,
-                  x0: np.array) -> typing.AsyncGenerator[np.array]:
+                  x0: np.array) -> typing.Iterator[np.array]:
     """
     Implementation of seidel method.
 
