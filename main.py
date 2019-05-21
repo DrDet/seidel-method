@@ -42,6 +42,7 @@ def seidel_method(*,
                 if i != j:
                     next_x[i] += B[i][j] * (next_x[j] if j < i else cur_x[j])
             next_x[i] += c[i]
+            next_x[i] += (w - 1) * (next_x[i] - cur_x[i])  # relaxation offset
         yield cur_x
         if eps is not None:
             if linal.norm(next_x - cur_x) < eps:
