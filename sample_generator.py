@@ -28,7 +28,7 @@ def gen_hilbert_matrix(n):
             e = 1.0 / (i + j + 1)
             row.append(e)
         res.append(row)
-    return res
+    return np.array(res)
 
 # print(gen_random_matrix(3))
 # print(gen_diagonally_dominant_matrix(3))
