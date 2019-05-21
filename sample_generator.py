@@ -30,7 +30,6 @@ def gen_hilbert_matrix(n):
         res.append(row)
     return res
 
-
 # print(gen_random_matrix(3))
 # print(gen_diagonally_dominant_matrix(3))
 # print(gen_hilbert_matrix(3))
