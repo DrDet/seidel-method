@@ -133,6 +133,12 @@ def main_measurement():
     b = np.array([78.185980, 84.521714, 99.682760, 99.969787, 61.538438])
     x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
 
+    print(f'good:\n {good}')
+    print(f'bad:\n {bad}')
+    print(f'random:\n {random}')
+    print(f'b = {b}')
+    print(f'x0 = {x0}')
+
     measure(A=good, b=b, x0=x0, name='good')
     measure(A=random, b=b, x0=x0, I=2000, name='random')
     measure(A=bad, b=b, x0=x0, name='bad')
