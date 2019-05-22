@@ -31,7 +31,7 @@ def seidel_method(*,
 
     if eps is not None:
         if linal.norm(B, ord=1) > 1:
-            print('WARNING: ||B|| >= 1 => estimation of eps is invalid')
+            pass  # print('WARNING: ||B|| >= 1 => estimation of eps is invalid')
         else:
             B2 = np.triu(B, 1)
             eps = (1 - linal.norm(B, ord=1)) / linal.norm(B2, ord=1) * eps
@@ -53,17 +53,38 @@ def seidel_method(*,
         cur_x = next_x
 
 
-def relaxation_param_choosing(A, b, x0):
-    eps = 1e-10
-    for w in np.arange(0, 2, 0.1):
-        seq = seidel_method(A=A, b=b, x0=x0, w=w, eps=eps)
+def relaxation_param_choosing(*, A, b, x0, name: typing.Optional[str] = None, I=1000, EPS=1e-6):
+    if name is None:
+        print('>>> Relaxation parameter choosing')
+    else:
+        print(f'>>> Relaxation parameter choosing for {name}')
+
+    for w in np.arange(0.9, 1.1, 0.01):
         iters_cnt = 0
-        for x in seq:
+        for x in islice(seidel_method(A=A, b=b, x0=x0, w=w, eps=EPS), I):
             iters_cnt += 1
-        print(f'for w = {w.round(2)} iterations cnt = {iters_cnt}')
+        if iters_cnt == I:
+            print(f'for w = {w.round(2)} not coverage: ||A(x*) - b|| = {linal.norm(A.dot(x) - b)}, iteration = {iters_cnt}, x = {x}')
+        else:
+            print(f'for w = {w.round(2)} iteration = {iters_cnt}')
+    print()
 
 
-if __name__ == '__main__':
+def measure(*, A, b, x0, EPS=1e-6, I=1000, name: str = 'measurement'):
+    print(f'>>> {name}')
+    print(f'eps = {EPS}, max_iteration = {I}')
+    i = 0
+    for x in islice(seidel_method(A=A, b=b, x0=x0, eps=EPS), I):
+        i = i + 1
+    print('> result')
+    if i >= I:
+        print(f'Not coverage: ||A(x*) - b|| = {linal.norm(A.dot(x) - b)}')
+    print(f'iteration = {i}')
+    print(f'x* = {x}')
+    print()
+
+
+def main_demo():
     n = 10
     A0 = gen.gen_diagonally_dominant_matrix(n)
     A1 = gen.gen_hilbert_matrix(n)
@@ -78,43 +99,47 @@ if __name__ == '__main__':
     print(f'x0:  {x0.round(4)}')
 
     print('\n>>> Test Seidel method on different matrix.')
-    print("\nDiagonally dominant matrix")
-    EPS = 1e-6
-    I = 1000
-    print(f'eps = {EPS}, max_iteration = {I}')
-    i = 0
-    for x in islice(seidel_method(A=A0, b=b, x0=x0, eps=EPS), I):
-        i = i + 1
-    print('> result')
-    if i >= I:
-        print('Not coverage.')
-    print(f'iteration = {i}')
-    print(f'||A(x*) - b|| = {linal.norm(A0.dot(x) - b)}')
+    measure(A=A0, b=b, x0=x0, name='Diagonally dominant matrix')
+    measure(A=A1, b=b, x0=x0, name='Hilbert matrix')
+    measure(A=A2, b=b, x0=x0, name='Random matrix')
 
-    print("\nHilbert matrix")
-    EPS = 1e-6
-    I = 1000
-    print(f'eps = {EPS}, max_iteration = {I}')
-    i = 0
-    for x in islice(seidel_method(A=A1, b=b, x0=x0, eps=EPS), I):
-        i = i + 1
-    print('> result')
-    if i >= I:
-        print('Not coverage.')
-    print(f'iteration = {i}')
-    print(f'||A(x*) - b|| = {linal.norm(A1.dot(x) - b)}')
+    relaxation_param_choosing(A=A0, b=b, x0=x0, name='diagonally dominant matrix')
 
-    print("\nRandom matrix")
-    EPS = 1e-6
-    I = 100
-    print(f'eps = {EPS}, max_iteration = {I}')
-    i = 0
-    for x in islice(seidel_method(A=A2, b=b, x0=x0, eps=EPS), I):
-        i = i + 1
-    print('> result')
-    if i >= I:
-        print('Not coverage.')
-    print(f'iteration = {i}')
-    print(f'||A(x*) - b|| = {linal.norm(A2.dot(x) - b)}')
-    print(f'\n>>> Relaxation parameter choosing for diagonally dominant matrix:')
-    relaxation_param_choosing(A0, b, x0)
+
+def main_measurement():
+    good = np.array([
+        [101.126133, 14.177853, 5.570273, 32.704660, 28.181857],
+        [46.534970, 531.885739, 144.802686, 139.902591, 149.429588],
+        [55.014745, 47.646827, 256.697287, 39.422978, 34.689687],
+        [2.581816, 13.412359, 7.144080, 113.486129, 14.905638],
+        [110.216649, 34.889634, 1.970613, 7.504255, 989.672536],
+    ])
+
+    random = np.array([
+        [38.410138, 53.634632, 57.547258, 60.574633, 61.109409],
+        [17.457198, 66.641469, 45.628101, 35.860134, 6.646870],
+        [61.160772, 78.548540, 80.458022, 52.468398, 30.893063],
+        [87.721305, 72.940947, 95.634175, 92.646077, 54.396008],
+        [15.091494, 46.745994, 24.297494, 86.361705, 21.750511]
+    ])
+
+    bad = np.array([
+        [0.333333, 0.250000, 0.200000, 0.166667, 0.142857],
+        [0.250000, 0.200000, 0.166667, 0.142857, 0.125000],
+        [0.200000, 0.166667, 0.142857, 0.125000, 0.111111],
+        [0.166667, 0.142857, 0.125000, 0.111111, 0.100000],
+        [0.142857, 0.125000, 0.111111, 0.100000, 0.090909],
+    ])
+    b = np.array([78.185980, 84.521714, 99.682760, 99.969787, 61.538438])
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+
+    measure(A=good, b=b, x0=x0, name='good')
+    measure(A=random, b=b, x0=x0, I=2000, name='random')
+    measure(A=bad, b=b, x0=x0, name='bad')
+    relaxation_param_choosing(A=good, b=b, x0=x0, name='good')
+    relaxation_param_choosing(A=random, b=b, x0=x0, name='random')
+    relaxation_param_choosing(A=bad, b=b, x0=x0, name='bad')
+
+
+if __name__ == '__main__':
+    main_measurement()
