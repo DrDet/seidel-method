@@ -29,7 +29,3 @@ def gen_hilbert_matrix(n):
             row.append(e)
         res.append(row)
     return np.array(res)
-
-# print(gen_random_matrix(3))
-# print(gen_diagonally_dominant_matrix(3))
-# print(gen_hilbert_matrix(3))

@@ -53,6 +53,16 @@ def seidel_method(*,
         cur_x = next_x
 
 
+def relaxation_param_choosing(A, b, x0):
+    eps = 1e-10
+    for w in np.arange(0, 2, 0.1):
+        seq = seidel_method(A=A, b=b, x0=x0, w=w, eps=eps)
+        iters_cnt = 0
+        for x in seq:
+            iters_cnt += 1
+        print(f'for w = {w.round(2)} iterations cnt = {iters_cnt}')
+
+
 if __name__ == '__main__':
     n = 10
     A0 = gen.gen_diagonally_dominant_matrix(n)
@@ -106,5 +116,5 @@ if __name__ == '__main__':
         print('Not coverage.')
     print(f'iteration = {i}')
     print(f'||A(x*) - b|| = {linal.norm(A2.dot(x) - b)}')
-
-
+    print(f'\n>>> Relaxation parameter choosing for diagonally dominant matrix:')
+    relaxation_param_choosing(A0, b, x0)
